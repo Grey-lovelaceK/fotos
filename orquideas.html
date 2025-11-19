@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OrchiMonitor - Monitoreo de Orquídeas</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primario: #6c5ce7;
+        --secundario: #a29bfe;
+        --success: #00b894;
+        --warning: #fdcb6e;
+        --danger: #d63031;
+        --dark: #2d3436;
+        --light: #f5f6fa;
+      }
+      body {
+        font-family: "Segoe UI", sans-serif;
+        background: #f8f9fa;
+        margin: 0;
+        color: var(--dark);
+      }
+      header {
+        background: linear-gradient(135deg, var(--primario), var(--secundario));
+        color: white;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+      .container {
+        max-width: 1400px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+      }
+      .card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s;
+      }
+      .card:hover {
+        transform: translateY(-5px);
+      }
+      .card h3 {
+        margin-top: 0;
+        color: var(--primario);
+      }
+      .gauge {
+        width: 180px;
+        height: 180px;
+        margin: 1rem auto;
+        background: conic-gradient(
+          var(--success) 0% 80%,
+          var(--warning) 80% 90%,
+          var(--danger) 90% 100%
+        );
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+      }
+      .gauge::before {
+        content: "80%";
+        font-size: 2rem;
+        font-weight: bold;
+        color: var(--dark);
+        background: white;
+        width: 130px;
+        height: 130px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .temp .gauge {
+        background: conic-gradient(#74b9ff 0% 65%, #fd79a8 65% 100%);
+      }
+      .temp .gauge::before {
+        content: "21.4°C";
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+        font-size: 0.95rem;
+      }
+      th {
+        background: var(--primario);
+        color: white;
+        padding: 12px;
+      }
+      td {
+        padding: 12px;
+        text-align: center;
+        border-bottom: 1px solid #ddd;
+      }
+      tr:nth-child(even) {
+        background: #f8f9fa;
+      }
+      .status {
+        padding: 5px 12px;
+        border-radius: 20px;
+        color: white;
+        font-size: 0.8rem;
+      }
+      .online {
+        background: var(--success);
+      }
+      .offline {
+        background: var(--danger);
+      }
+      .calendar {
+        background: var(--light);
+        padding: 1rem;
+        border-radius: 10px;
+      }
+      .day.today {
+        background: var(--primario);
+        color: white;
+        font-weight: bold;
+      }
+      .alert {
+        background: #fff3cd;
+        color: #856404;
+        padding: 1rem;
+        border-radius: 8px;
+        border-left: 5px solid #ffeaa7;
+      }
+      footer {
+        text-align: center;
+        padding: 2rem;
+        color: #777;
+        font-size: 0.9rem;
+      }
+      @media (max-width: 768px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1><i class="fas fa-seedling"></i> OrchiMonitor</h1>
+      <p>
+        Monitoreo inteligente de cultivo de orquídeas • Invernadero 200–300 m²
+      </p>
+    </header>
+
+    <div class="container">
+      <div class="alert">
+        <strong><i class="fas fa-exclamation-triangle"></i> ¡Alerta!</strong>
+        Nodo 5 reporta humedad baja (62%). Se recomienda activar nebulización.
+      </div>
+
+      <div class="grid">
+        <div class="card temp">
+          <h3><i class="fas fa-thermometer-half"></i> Temperatura Actual</h3>
+          <div class="gauge"></div>
+          <p><strong>Óptimo:</strong> 18–24°C (día) • 15–20°C (noche)</p>
+        </div>
+
+        <div class="card">
+          <h3><i class="fas fa-tint"></i> Humedad Relativa</h3>
+          <div class="gauge"></div>
+          <p><strong>Óptimo:</strong> 75–85%</p>
+        </div>
+
+        <div class="card">
+          <h3><i class="fas fa-microchip"></i> Estado de Nodos ESP32</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Nodo</th>
+                <th>Ubicación</th>
+                <th>Estado</th>
+                <th>Última lectura</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Nodo 1</td>
+                <td>Phalaenopsis</td>
+                <td><span class="status online">Online</span></td>
+                <td>hace 2 min</td>
+              </tr>
+              <tr>
+                <td>Nodo 2</td>
+                <td>Cattleya</td>
+                <td><span class="status online">Online</span></td>
+                <td>hace 1 min</td>
+              </tr>
+              <tr>
+                <td>Nodo 3</td>
+                <td>Dendrobium</td>
+                <td><span class="status online">Online</span></td>
+                <td>hace 3 min</td>
+              </tr>
+              <tr>
+                <td>Nodo 4</td>
+                <td>Oncidium</td>
+                <td><span class="status online">Online</span></td>
+                <td>hace 1 min</td>
+              </tr>
+              <tr>
+                <td>Nodo 5</td>
+                <td>Vanda</td>
+                <td><span class="status online">Online</span></td>
+                <td>hace 45 seg</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card calendar">
+          <h3><i class="fas fa-calendar-alt"></i> Próximos Riegos</h3>
+          <p>
+            <strong>Hoy, 19 nov 2025</strong> →
+            <span style="color: var(--success)">Riego programado 18:30</span>
+          </p>
+          <p>Jueves 20 → 08:00 y 18:00</p>
+          <p>Viernes 21 → 08:00 y 18:00</p>
+          <p>Sábado 22 → Solo mañana</p>
+          <button
+            style="
+              background: var(--primario);
+              color: white;
+              border: none;
+              padding: 10px 20px;
+              border-radius: 8px;
+              cursor: pointer;
+            "
+          >
+            <i class="fas fa-plus"></i> Programar riego manual
+          </button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 2rem">
+        <h3><i class="fas fa-chart-line"></i> Histórico Últimas 24 horas</h3>
+        <canvas id="chart" height="100"></canvas>
+      </div>
+    </div>
+
+    <footer>
+      OrchiMonitor © 2025 • Desarrollado para Integración de Competencias II •
+      Tecnologías Industria 4.0
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      const ctx = document.getElementById("chart").getContext("2d");
+      new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: [
+            "00:00",
+            "04:00",
+            "08:00",
+            "12:00",
+            "16:00",
+            "20:00",
+            "23:59",
+          ],
+          datasets: [
+            {
+              label: "Temperatura (°C)",
+              data: [18.5, 17.8, 19.2, 22.4, 23.1, 21.4, 20.1],
+              borderColor: "#74b9ff",
+              tension: 0.4,
+            },
+            {
+              label: "Humedad (%)",
+              data: [82, 85, 79, 76, 74, 80, 82],
+              borderColor: "#55efc4",
+              tension: 0.4,
+            },
+          ],
+        },
+        options: { responsive: true, plugins: { legend: { position: "top" } } },
+      });
+    </script>
+  </body>
+</html>

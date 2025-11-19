@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Documento con Fotos</title>
+    <style>
+      @media print {
+        @page {
+          size: letter;
+          margin: 0;
+        }
+        .no-print {
+          display: none;
+        }
+        .page {
+          box-shadow: none;
+          margin: 0;
+          page-break-after: always;
+        }
+        .page:last-child {
+          page-break-after: auto;
+        }
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background: #f0f0f0;
+        padding: 20px;
+      }
+
+      .page {
+        width: 21.59cm;
+        height: 27.94cm;
+        background: white;
+        margin: 0 auto 20px;
+        padding: 1.5cm 1.2cm;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 0.8cm;
+        padding-bottom: 0.3cm;
+        border-bottom: 2px solid #333;
+      }
+
+      .header h1 {
+        color: #333;
+        font-size: 20pt;
+      }
+
+      .photo-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 7cm);
+        grid-template-rows: repeat(3, 7cm);
+        gap: 1cm 1.5cm;
+        justify-content: center;
+        align-content: center;
+        flex: 1;
+      }
+
+      .photo-container {
+        width: 7cm;
+        height: 7cm;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 2px solid #ddd;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        background: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        cursor: move;
+        transition: border-color 0.3s;
+      }
+
+      .photo-container:hover {
+        border-color: #4caf50;
+      }
+
+      .photo-container.active {
+        border-color: #2196f3;
+        border-width: 3px;
+        box-shadow: 0 0 15px rgba(33, 150, 243, 0.5);
+      }
+
+      .photo-wrapper {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .photo-container img {
+        min-width: 100%;
+        min-height: 100%;
+        width: auto;
+        height: auto;
+        max-width: none;
+        object-fit: cover;
+        object-position: center;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(1);
+        transform-origin: center center;
+        transition: transform 0.1s ease-out;
+        user-select: none;
+        -webkit-user-drag: none;
+      }
+
+      .photo-container img.portrait {
+        width: 100%;
+        height: auto;
+      }
+
+      .photo-container img.landscape {
+        width: auto;
+        height: 100%;
+      }
+
+      .photo-container img.square {
+        width: 100%;
+        height: 100%;
+      }
+
+      .loading {
+        color: #999;
+        font-size: 14px;
+      }
+
+      .controls {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        display: flex;
+        gap: 10px;
+        z-index: 1000;
+      }
+
+      .btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s;
+      }
+
+      .print-button {
+        background: #4caf50;
+        color: white;
+      }
+
+      .print-button:hover {
+        background: #45a049;
+      }
+
+      .load-button {
+        background: #2196f3;
+        color: white;
+      }
+
+      .load-button:hover {
+        background: #0b7dda;
+      }
+
+      .info {
+        background: #fff;
+        padding: 10px 15px;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      }
+
+      .help-panel {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        background: #fff;
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        max-width: 300px;
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      .help-panel h3 {
+        margin: 0 0 10px 0;
+        color: #333;
+        font-size: 16px;
+      }
+
+      .help-panel ul {
+        margin: 0;
+        padding-left: 20px;
+      }
+
+      .help-panel li {
+        margin-bottom: 5px;
+      }
+
+      .reset-btn {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid #ddd;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        cursor: pointer;
+        font-size: 16px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+      }
+
+      .photo-container:hover .reset-btn {
+        display: flex;
+      }
+
+      .reset-btn:hover {
+        background: #f44336;
+        color: white;
+        border-color: #f44336;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="controls no-print">
+      <input
+        type="file"
+        id="fileInput"
+        accept="image/*"
+        multiple
+        style="display: none"
+      />
+      <button
+        class="btn load-button"
+        onclick="document.getElementById('fileInput').click()"
+      >
+        📁 Cargar Imágenes
+      </button>
+      <button class="btn print-button" onclick="window.print()">
+        🖨️ Imprimir
+      </button>
+      <div class="info">
+        <strong>Imágenes:</strong> <span id="imageCount">0</span> |
+        <strong>Páginas:</strong> <span id="pageCount">0</span>
+      </div>
+    </div>
+
+    <div id="pagesContainer">
+      <!-- Las páginas se generarán dinámicamente aquí -->
+    </div>
+
+    <div class="help-panel no-print">
+      <h3>🎨 Controles de Imagen</h3>
+      <ul>
+        <li><strong>Arrastrar:</strong> Click y arrastra para mover</li>
+        <li><strong>Zoom:</strong> Rueda del mouse sobre la imagen</li>
+        <li><strong>Reset:</strong> Botón 🔄 en la esquina</li>
+      </ul>
+    </div>
+
+    <script>
+      const fileInput = document.getElementById("fileInput");
+      const pagesContainer = document.getElementById("pagesContainer");
+      const imageCountSpan = document.getElementById("imageCount");
+      const pageCountSpan = document.getElementById("pageCount");
+
+      // Variables para el control de imágenes
+      let isDragging = false;
+      let currentImage = null;
+      let startX = 0;
+      let startY = 0;
+      let translateX = 0;
+      let translateY = 0;
+      let scale = 1;
+
+      // Escuchar cuando se seleccionan archivos
+      fileInput.addEventListener("change", function (e) {
+        const files = Array.from(e.target.files);
+        if (files.length === 0) return;
+
+        loadImages(files);
+      });
+
+      function loadImages(files) {
+        // Limpiar páginas anteriores
+        pagesContainer.innerHTML = "";
+
+        // Filtrar solo imágenes
+        const imageFiles = files.filter((file) =>
+          file.type.startsWith("image/")
+        );
+
+        if (imageFiles.length === 0) {
+          alert("No se encontraron imágenes válidas");
+          return;
+        }
+
+        // Actualizar contador
+        imageCountSpan.textContent = imageFiles.length;
+        pageCountSpan.textContent = Math.ceil(imageFiles.length / 6);
+
+        // Crear páginas (6 imágenes por página)
+        let currentPage = null;
+        let currentGrid = null;
+
+        imageFiles.forEach((file, index) => {
+          // Crear nueva página cada 6 imágenes
+          if (index % 6 === 0) {
+            currentPage = createPage(Math.floor(index / 6) + 1);
+            currentGrid = currentPage.querySelector(".photo-grid");
+            pagesContainer.appendChild(currentPage);
+          }
+
+          // Crear contenedor de foto
+          const photoContainer = document.createElement("div");
+          photoContainer.className = "photo-container";
+          photoContainer.innerHTML = `
+                    <div class="photo-wrapper">
+                        <div class="loading">Cargando...</div>
+                    </div>
+                    <button class="reset-btn" title="Resetear posición">🔄</button>
+                `;
+
+          const wrapper = photoContainer.querySelector(".photo-wrapper");
+
+          // Leer y mostrar imagen
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            const img = document.createElement("img");
+            img.src = e.target.result;
+            img.alt = `Foto ${index + 1}`;
+
+            // Guardar valores iniciales
+            img.dataset.scale = "1";
+            img.dataset.translateX = "0";
+            img.dataset.translateY = "0";
+
+            // Detectar orientación de la imagen cuando cargue
+            img.onload = function () {
+              const ratio = this.naturalWidth / this.naturalHeight;
+
+              if (ratio > 1.1) {
+                // Imagen horizontal
+                this.classList.add("landscape");
+              } else if (ratio < 0.9) {
+                // Imagen vertical
+                this.classList.add("portrait");
+              } else {
+                // Imagen cuadrada
+                this.classList.add("square");
+              }
+            };
+
+            wrapper.innerHTML = "";
+            wrapper.appendChild(img);
+
+            // Agregar controles de interacción
+            setupImageControls(photoContainer, img);
+          };
+          reader.readAsDataURL(file);
+
+          currentGrid.appendChild(photoContainer);
+        });
+
+        // Rellenar espacios vacíos en la última página si no tiene 6 fotos
+        const lastPagePhotos = imageFiles.length % 6;
+        if (lastPagePhotos > 0 && lastPagePhotos < 6) {
+          const emptySpaces = 6 - lastPagePhotos;
+          for (let i = 0; i < emptySpaces; i++) {
+            const emptyContainer = document.createElement("div");
+            emptyContainer.className = "photo-container";
+            emptyContainer.style.visibility = "hidden";
+            currentGrid.appendChild(emptyContainer);
+          }
+        }
+      }
+
+      function setupImageControls(container, img) {
+        const resetBtn = container.querySelector(".reset-btn");
+
+        // Zoom con rueda del mouse
+        container.addEventListener("wheel", function (e) {
+          e.preventDefault();
+
+          let currentScale = parseFloat(img.dataset.scale);
+          const delta = e.deltaY > 0 ? -0.1 : 0.1;
+          let newScale = currentScale + delta;
+
+          // Limitar el zoom entre 0.5x y 3x
+          newScale = Math.max(0.5, Math.min(3, newScale));
+
+          img.dataset.scale = newScale;
+          updateImageTransform(img);
+        });
+
+        // Arrastrar imagen
+        container.addEventListener("mousedown", function (e) {
+          if (e.target === resetBtn) return;
+
+          isDragging = true;
+          currentImage = img;
+          container.classList.add("active");
+
+          startX = e.clientX - parseFloat(img.dataset.translateX);
+          startY = e.clientY - parseFloat(img.dataset.translateY);
+
+          e.preventDefault();
+        });
+
+        // Resetear posición
+        resetBtn.addEventListener("click", function (e) {
+          e.stopPropagation();
+          img.dataset.scale = "1";
+          img.dataset.translateX = "0";
+          img.dataset.translateY = "0";
+          updateImageTransform(img);
+        });
+      }
+
+      // Event listeners globales para arrastrar
+      document.addEventListener("mousemove", function (e) {
+        if (!isDragging || !currentImage) return;
+
+        const newX = e.clientX - startX;
+        const newY = e.clientY - startY;
+
+        currentImage.dataset.translateX = newX;
+        currentImage.dataset.translateY = newY;
+
+        updateImageTransform(currentImage);
+      });
+
+      document.addEventListener("mouseup", function () {
+        if (isDragging) {
+          isDragging = false;
+          if (currentImage) {
+            currentImage.closest(".photo-container").classList.remove("active");
+            currentImage = null;
+          }
+        }
+      });
+
+      function updateImageTransform(img) {
+        const scale = parseFloat(img.dataset.scale);
+        const translateX = parseFloat(img.dataset.translateX);
+        const translateY = parseFloat(img.dataset.translateY);
+
+        img.style.transform = `translate(calc(-50% + ${translateX}px), calc(-50% + ${translateY}px)) scale(${scale})`;
+      }
+
+      function createPage(pageNumber) {
+        const page = document.createElement("div");
+        page.className = "page";
+        page.innerHTML = `
+                <div class="header">
+                </div>
+                <div class="photo-grid"></div>
+            `;
+        return page;
+      }
+
+      // Crear página de ejemplo al cargar
+      window.addEventListener("load", function () {
+        const examplePage = createPage(1);
+        const grid = examplePage.querySelector(".photo-grid");
+
+        for (let i = 1; i <= 6; i++) {
+          const container = document.createElement("div");
+          container.className = "photo-container";
+          container.innerHTML = `
+                    <div class="photo-wrapper">
+                        <img src="https://via.placeholder.com/700/FFB6C1/000000?text=Foto+${i}" alt="Foto ${i}" class="square">
+                    </div>
+                    <button class="reset-btn" title="Resetear posición">🔄</button>
+                `;
+
+          const img = container.querySelector("img");
+          img.dataset.scale = "1";
+          img.dataset.translateX = "0";
+          img.dataset.translateY = "0";
+
+          setupImageControls(container, img);
+          grid.appendChild(container);
+        }
+
+        pagesContainer.appendChild(examplePage);
+        imageCountSpan.textContent = "6 (ejemplo)";
+        pageCountSpan.textContent = "1";
+      });
+    </script>
+  </body>
+</html>
