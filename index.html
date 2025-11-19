@@ -263,9 +263,7 @@
       </div>
     </div>
 
-    <div id="pagesContainer">
-      <!-- Las páginas se generarán dinámicamente aquí -->
-    </div>
+    <div id="pagesContainer"></div>
 
     <div class="help-panel no-print">
       <h3>🎨 Controles de Imagen</h3>
@@ -282,7 +280,6 @@
       const imageCountSpan = document.getElementById("imageCount");
       const pageCountSpan = document.getElementById("pageCount");
 
-      // Variables para el control de imágenes
       let isDragging = false;
       let currentImage = null;
       let startX = 0;
@@ -291,7 +288,6 @@
       let translateY = 0;
       let scale = 1;
 
-      // Escuchar cuando se seleccionan archivos
       fileInput.addEventListener("change", function (e) {
         const files = Array.from(e.target.files);
         if (files.length === 0) return;
@@ -300,10 +296,8 @@
       });
 
       function loadImages(files) {
-        // Limpiar páginas anteriores
         pagesContainer.innerHTML = "";
 
-        // Filtrar solo imágenes
         const imageFiles = files.filter((file) =>
           file.type.startsWith("image/")
         );
@@ -313,23 +307,19 @@
           return;
         }
 
-        // Actualizar contador
         imageCountSpan.textContent = imageFiles.length;
         pageCountSpan.textContent = Math.ceil(imageFiles.length / 6);
 
-        // Crear páginas (6 imágenes por página)
         let currentPage = null;
         let currentGrid = null;
 
         imageFiles.forEach((file, index) => {
-          // Crear nueva página cada 6 imágenes
           if (index % 6 === 0) {
             currentPage = createPage(Math.floor(index / 6) + 1);
             currentGrid = currentPage.querySelector(".photo-grid");
             pagesContainer.appendChild(currentPage);
           }
 
-          // Crear contenedor de foto
           const photoContainer = document.createElement("div");
           photoContainer.className = "photo-container";
           photoContainer.innerHTML = `
@@ -341,30 +331,24 @@
 
           const wrapper = photoContainer.querySelector(".photo-wrapper");
 
-          // Leer y mostrar imagen
           const reader = new FileReader();
           reader.onload = function (e) {
             const img = document.createElement("img");
             img.src = e.target.result;
             img.alt = `Foto ${index + 1}`;
 
-            // Guardar valores iniciales
             img.dataset.scale = "1";
             img.dataset.translateX = "0";
             img.dataset.translateY = "0";
 
-            // Detectar orientación de la imagen cuando cargue
             img.onload = function () {
               const ratio = this.naturalWidth / this.naturalHeight;
 
               if (ratio > 1.1) {
-                // Imagen horizontal
                 this.classList.add("landscape");
               } else if (ratio < 0.9) {
-                // Imagen vertical
                 this.classList.add("portrait");
               } else {
-                // Imagen cuadrada
                 this.classList.add("square");
               }
             };
@@ -372,7 +356,6 @@
             wrapper.innerHTML = "";
             wrapper.appendChild(img);
 
-            // Agregar controles de interacción
             setupImageControls(photoContainer, img);
           };
           reader.readAsDataURL(file);
@@ -380,7 +363,6 @@
           currentGrid.appendChild(photoContainer);
         });
 
-        // Rellenar espacios vacíos en la última página si no tiene 6 fotos
         const lastPagePhotos = imageFiles.length % 6;
         if (lastPagePhotos > 0 && lastPagePhotos < 6) {
           const emptySpaces = 6 - lastPagePhotos;
@@ -396,7 +378,6 @@
       function setupImageControls(container, img) {
         const resetBtn = container.querySelector(".reset-btn");
 
-        // Zoom con rueda del mouse
         container.addEventListener("wheel", function (e) {
           e.preventDefault();
 
@@ -404,14 +385,12 @@
           const delta = e.deltaY > 0 ? -0.1 : 0.1;
           let newScale = currentScale + delta;
 
-          // Limitar el zoom entre 0.5x y 3x
           newScale = Math.max(0.5, Math.min(3, newScale));
 
           img.dataset.scale = newScale;
           updateImageTransform(img);
         });
 
-        // Arrastrar imagen
         container.addEventListener("mousedown", function (e) {
           if (e.target === resetBtn) return;
 
@@ -425,7 +404,6 @@
           e.preventDefault();
         });
 
-        // Resetear posición
         resetBtn.addEventListener("click", function (e) {
           e.stopPropagation();
           img.dataset.scale = "1";
@@ -435,7 +413,6 @@
         });
       }
 
-      // Event listeners globales para arrastrar
       document.addEventListener("mousemove", function (e) {
         if (!isDragging || !currentImage) return;
 
@@ -477,7 +454,6 @@
         return page;
       }
 
-      // Crear página de ejemplo al cargar
       window.addEventListener("load", function () {
         const examplePage = createPage(1);
         const grid = examplePage.querySelector(".photo-grid");
