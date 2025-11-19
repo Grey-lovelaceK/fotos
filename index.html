@@ -3,484 +3,451 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Documento con Fotos</title>
+    <title>OrchMonitor - Sistema de Monitoreo de Orquídeas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-      @media print {
-        @page {
-          size: letter;
-          margin: 0;
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
         }
-        .no-print {
-          display: none;
-        }
-        .page {
-          box-shadow: none;
-          margin: 0;
-          page-break-after: always;
-        }
-        .page:last-child {
-          page-break-after: auto;
+        to {
+          opacity: 1;
+          transform: translateY(0);
         }
       }
-
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
+      .notification-item {
+        animation: fadeIn 0.3s ease-out;
       }
-
-      body {
-        font-family: Arial, sans-serif;
-        background: #f0f0f0;
-        padding: 20px;
-      }
-
-      .page {
-        width: 21.59cm;
-        height: 27.94cm;
-        background: white;
-        margin: 0 auto 20px;
-        padding: 1.5cm 1.2cm;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        display: flex;
-        flex-direction: column;
-      }
-
-      .header {
-        text-align: center;
-        margin-bottom: 0.8cm;
-        padding-bottom: 0.3cm;
-        border-bottom: 2px solid #333;
-      }
-
-      .header h1 {
-        color: #333;
-        font-size: 20pt;
-      }
-
-      .photo-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 7cm);
-        grid-template-rows: repeat(3, 7cm);
-        gap: 1cm 1.5cm;
-        justify-content: center;
-        align-content: center;
-        flex: 1;
-      }
-
-      .photo-container {
-        width: 7cm;
-        height: 7cm;
-        border-radius: 50%;
-        overflow: hidden;
-        border: 2px solid #ddd;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-        background: #ffffff;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-        cursor: move;
-        transition: border-color 0.3s;
-      }
-
-      .photo-container:hover {
-        border-color: #4caf50;
-      }
-
-      .photo-container.active {
-        border-color: #2196f3;
-        border-width: 3px;
-        box-shadow: 0 0 15px rgba(33, 150, 243, 0.5);
-      }
-
-      .photo-wrapper {
-        width: 100%;
-        height: 100%;
-        position: relative;
-        overflow: hidden;
-      }
-
-      .photo-container img {
-        min-width: 100%;
-        min-height: 100%;
-        width: auto;
-        height: auto;
-        max-width: none;
-        object-fit: cover;
-        object-position: center;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%) scale(1);
-        transform-origin: center center;
-        transition: transform 0.1s ease-out;
-        user-select: none;
-        -webkit-user-drag: none;
-      }
-
-      .photo-container img.portrait {
-        width: 100%;
-        height: auto;
-      }
-
-      .photo-container img.landscape {
-        width: auto;
-        height: 100%;
-      }
-
-      .photo-container img.square {
-        width: 100%;
-        height: 100%;
-      }
-
-      .loading {
-        color: #999;
-        font-size: 14px;
-      }
-
-      .controls {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        display: flex;
-        gap: 10px;
-        z-index: 1000;
-      }
-
-      .btn {
-        padding: 12px 24px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 16px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        transition: all 0.3s;
-      }
-
-      .print-button {
-        background: #4caf50;
-        color: white;
-      }
-
-      .print-button:hover {
-        background: #45a049;
-      }
-
-      .load-button {
-        background: #2196f3;
-        color: white;
-      }
-
-      .load-button:hover {
-        background: #0b7dda;
-      }
-
-      .info {
-        background: #fff;
-        padding: 10px 15px;
-        border-radius: 5px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-      }
-
-      .help-panel {
-        position: fixed;
-        bottom: 20px;
-        left: 20px;
-        background: #fff;
-        padding: 15px 20px;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        max-width: 300px;
-        font-size: 14px;
-        line-height: 1.6;
-      }
-
-      .help-panel h3 {
-        margin: 0 0 10px 0;
-        color: #333;
-        font-size: 16px;
-      }
-
-      .help-panel ul {
-        margin: 0;
-        padding-left: 20px;
-      }
-
-      .help-panel li {
-        margin-bottom: 5px;
-      }
-
-      .reset-btn {
-        position: absolute;
-        top: 5px;
-        right: 5px;
-        background: rgba(255, 255, 255, 0.9);
-        border: 1px solid #ddd;
-        border-radius: 50%;
-        width: 30px;
-        height: 30px;
-        cursor: pointer;
-        font-size: 16px;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        z-index: 10;
-      }
-
-      .photo-container:hover .reset-btn {
-        display: flex;
-      }
-
-      .reset-btn:hover {
-        background: #f44336;
-        color: white;
-        border-color: #f44336;
+      .gauge-circle {
+        transition: stroke-dasharray 0.5s ease-out;
       }
     </style>
   </head>
-  <body>
-    <div class="controls no-print">
-      <input
-        type="file"
-        id="fileInput"
-        accept="image/*"
-        multiple
-        style="display: none"
-      />
-      <button
-        class="btn load-button"
-        onclick="document.getElementById('fileInput').click()"
-      >
-        📁 Cargar Imágenes
-      </button>
-      <button class="btn print-button" onclick="window.print()">
-        🖨️ Imprimir
-      </button>
-      <div class="info">
-        <strong>Imágenes:</strong> <span id="imageCount">0</span> |
-        <strong>Páginas:</strong> <span id="pageCount">0</span>
+  <body class="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 p-4">
+    <div class="max-w-7xl mx-auto">
+      <header class="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <div class="flex justify-between items-center flex-wrap gap-4">
+          <div>
+            <h1
+              class="text-3xl font-bold text-green-800 flex items-center gap-2"
+            >
+              🌸 OrchMonitor
+            </h1>
+            <p class="text-gray-600">
+              Sistema de Monitoreo Inteligente de Orquídeas
+            </p>
+          </div>
+          <div class="text-right">
+            <div
+              id="currentTime"
+              class="text-2xl font-semibold text-gray-800"
+            ></div>
+            <div id="currentDate" class="text-sm text-gray-600"></div>
+          </div>
+        </div>
+      </header>
+
+      <div
+        id="sensorNodes"
+        class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6"
+      ></div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+              📅 Calendario de Riego
+            </h2>
+            <button
+              onclick="toggleAddSchedule()"
+              class="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-600 transition"
+            >
+              ➕ Agregar
+            </button>
+          </div>
+
+          <div
+            id="addScheduleForm"
+            class="bg-gray-50 p-4 rounded-lg mb-4 hidden"
+          >
+            <div class="grid grid-cols-3 gap-2 mb-3">
+              <select id="newDay" class="border rounded px-3 py-2">
+                <option value="Lunes">Lunes</option>
+                <option value="Martes">Martes</option>
+                <option value="Miércoles">Miércoles</option>
+                <option value="Jueves">Jueves</option>
+                <option value="Viernes">Viernes</option>
+                <option value="Sábado">Sábado</option>
+                <option value="Domingo">Domingo</option>
+              </select>
+              <input
+                id="newTime"
+                type="time"
+                value="08:00"
+                class="border rounded px-3 py-2"
+              />
+              <select id="newType" class="border rounded px-3 py-2">
+                <option value="Manual">Manual</option>
+                <option value="Automático">Automático</option>
+              </select>
+            </div>
+            <button
+              onclick="addSchedule()"
+              class="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600 transition"
+            >
+              Guardar Horario
+            </button>
+          </div>
+
+          <div id="scheduleList" class="space-y-2"></div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-lg p-6">
+          <h2
+            class="text-xl font-bold text-gray-800 flex items-center gap-2 mb-4"
+          >
+            🔔 Notificaciones y Alertas
+          </h2>
+          <div
+            id="notificationList"
+            class="space-y-2 max-h-96 overflow-y-auto"
+          ></div>
+        </div>
       </div>
-    </div>
 
-    <div id="pagesContainer"></div>
-
-    <div class="help-panel no-print">
-      <h3>🎨 Controles de Imagen</h3>
-      <ul>
-        <li><strong>Arrastrar:</strong> Click y arrastra para mover</li>
-        <li><strong>Zoom:</strong> Rueda del mouse sobre la imagen</li>
-        <li><strong>Reset:</strong> Botón 🔄 en la esquina</li>
-      </ul>
+      <footer class="mt-6 text-center text-gray-600 text-sm">
+        <p>OrchMonitor v1.0 - Equipo Cultivo Inteligente de Orquídeas</p>
+        <p>
+          Cristian Revilla • Iván González • Ricardo Alvarado • Alejandro Franco
+        </p>
+      </footer>
     </div>
 
     <script>
-      const fileInput = document.getElementById("fileInput");
-      const pagesContainer = document.getElementById("pagesContainer");
-      const imageCountSpan = document.getElementById("imageCount");
-      const pageCountSpan = document.getElementById("pageCount");
+      let schedules = [
+        { id: 1, day: "Lunes", time: "08:00", type: "Manual", active: true },
+        {
+          id: 2,
+          day: "Miércoles",
+          time: "08:00",
+          type: "Manual",
+          active: true,
+        },
+        { id: 3, day: "Viernes", time: "08:00", type: "Manual", active: true },
+      ];
 
-      let isDragging = false;
-      let currentImage = null;
-      let startX = 0;
-      let startY = 0;
-      let translateX = 0;
-      let translateY = 0;
-      let scale = 1;
+      let sensorData = {
+        nodo1: { temp: 21.5, humidity: 78, soilMoisture: 65, status: "online" },
+        nodo2: { temp: 22.1, humidity: 82, soilMoisture: 70, status: "online" },
+        nodo3: { temp: 20.8, humidity: 76, soilMoisture: 62, status: "online" },
+      };
 
-      fileInput.addEventListener("change", function (e) {
-        const files = Array.from(e.target.files);
-        if (files.length === 0) return;
+      let notifications = [];
+      let alerts = [];
 
-        loadImages(files);
-      });
+      function updateTime() {
+        const now = new Date();
+        document.getElementById("currentTime").textContent =
+          now.toLocaleTimeString("es-CL");
+        document.getElementById("currentDate").textContent =
+          now.toLocaleDateString("es-CL", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          });
+      }
 
-      function loadImages(files) {
-        pagesContainer.innerHTML = "";
+      function createGauge(value, min, max, unit, label) {
+        const percentage = ((value - min) / (max - min)) * 100;
+        const color = value < min || value > max ? "#ef4444" : "#10b981";
+        const dashArray = (percentage * 3.51).toFixed(2);
 
-        const imageFiles = files.filter((file) =>
-          file.type.startsWith("image/")
+        return `
+                <div class="flex flex-col items-center">
+                    <div class="relative w-32 h-32">
+                        <svg class="transform -rotate-90 w-32 h-32">
+                            <circle cx="64" cy="64" r="56" stroke="#e5e7eb" stroke-width="8" fill="none" />
+                            <circle cx="64" cy="64" r="56" stroke="${color}" stroke-width="8" fill="none"
+                                stroke-dasharray="${dashArray} 351.86" class="gauge-circle" />
+                        </svg>
+                        <div class="absolute inset-0 flex items-center justify-center flex-col">
+                            <span class="text-2xl font-bold">${value}</span>
+                            <span class="text-xs text-gray-500">${unit}</span>
+                        </div>
+                    </div>
+                    <span class="text-sm mt-2 text-gray-600">${label}</span>
+                    <span class="text-xs text-gray-400">${min}-${max} ${unit}</span>
+                </div>
+            `;
+      }
+
+      function renderSensorNodes() {
+        const container = document.getElementById("sensorNodes");
+        container.innerHTML = "";
+
+        Object.entries(sensorData).forEach(([node, data]) => {
+          const nodeCard = document.createElement("div");
+          nodeCard.className = "bg-white rounded-lg shadow-lg p-6";
+          nodeCard.innerHTML = `
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">${node.toUpperCase()}</h3>
+                        <div class="flex items-center gap-2">
+                            <span class="text-green-500">📶</span>
+                            <span class="text-xs text-green-600">Online</span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        ${createGauge(data.temp, 18, 24, "°C", "Temperatura")}
+                        ${createGauge(
+                          data.humidity,
+                          75,
+                          85,
+                          "%",
+                          "Humedad Aire"
+                        )}
+                    </div>
+                    <div class="mt-4 flex justify-center">
+                        ${createGauge(
+                          data.soilMoisture,
+                          60,
+                          80,
+                          "%",
+                          "Humedad Suelo"
+                        )}
+                    </div>
+                `;
+          container.appendChild(nodeCard);
+        });
+      }
+
+      function updateSensorData() {
+        Object.keys(sensorData).forEach((node) => {
+          sensorData[node].temp = (20 + Math.random() * 4).toFixed(1);
+          sensorData[node].humidity = (75 + Math.random() * 10).toFixed(0);
+          sensorData[node].soilMoisture = (60 + Math.random() * 15).toFixed(0);
+
+          if (sensorData[node].temp < 18 || sensorData[node].temp > 24) {
+            addAlert(
+              `${node}: Temperatura fuera de rango (${sensorData[node].temp}°C)`,
+              "warning"
+            );
+          }
+          if (
+            sensorData[node].humidity < 75 ||
+            sensorData[node].humidity > 85
+          ) {
+            addAlert(
+              `${node}: Humedad fuera de rango (${sensorData[node].humidity}%)`,
+              "warning"
+            );
+          }
+        });
+        renderSensorNodes();
+      }
+
+      function renderSchedules() {
+        const container = document.getElementById("scheduleList");
+        container.innerHTML = "";
+
+        schedules.forEach((schedule) => {
+          const scheduleItem = document.createElement("div");
+          scheduleItem.className = `flex items-center justify-between p-3 rounded-lg border-2 ${
+            schedule.active
+              ? "bg-green-50 border-green-200"
+              : "bg-gray-50 border-gray-200"
+          }`;
+          scheduleItem.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <input type="checkbox" ${
+                          schedule.active ? "checked" : ""
+                        } 
+                            onchange="toggleSchedule(${
+                              schedule.id
+                            })" class="w-5 h-5">
+                        <span>🕐</span>
+                        <div>
+                            <div class="font-semibold">${schedule.day} - ${
+            schedule.time
+          }</div>
+                            <div class="text-xs text-gray-500">${
+                              schedule.type
+                            }</div>
+                        </div>
+                    </div>
+                    <button onclick="deleteSchedule(${
+                      schedule.id
+                    })" class="text-red-500 hover:text-red-700">
+                        🗑️
+                    </button>
+                `;
+          container.appendChild(scheduleItem);
+        });
+      }
+
+      function toggleAddSchedule() {
+        const form = document.getElementById("addScheduleForm");
+        form.classList.toggle("hidden");
+        requestNotificationPermission();
+      }
+
+      function addSchedule() {
+        const day = document.getElementById("newDay").value;
+        const time = document.getElementById("newTime").value;
+        const type = document.getElementById("newType").value;
+
+        schedules.push({
+          id: Date.now(),
+          day,
+          time,
+          type,
+          active: true,
+        });
+
+        renderSchedules();
+        toggleAddSchedule();
+      }
+
+      function deleteSchedule(id) {
+        schedules = schedules.filter((s) => s.id !== id);
+        renderSchedules();
+      }
+
+      function toggleSchedule(id) {
+        const schedule = schedules.find((s) => s.id === id);
+        if (schedule) {
+          schedule.active = !schedule.active;
+          renderSchedules();
+        }
+      }
+
+      function checkSchedules() {
+        const now = new Date();
+        const dayNames = [
+          "Domingo",
+          "Lunes",
+          "Martes",
+          "Miércoles",
+          "Jueves",
+          "Viernes",
+          "Sábado",
+        ];
+        const currentDay = dayNames[now.getDay()];
+        const currentTime = `${now.getHours().toString().padStart(2, "0")}:${now
+          .getMinutes()
+          .toString()
+          .padStart(2, "0")}`;
+
+        schedules.forEach((schedule) => {
+          if (
+            schedule.active &&
+            schedule.day === currentDay &&
+            schedule.time === currentTime
+          ) {
+            sendNotification(
+              `⏰ Hora de regar las orquídeas - ${schedule.type}`
+            );
+          }
+        });
+      }
+
+      function sendNotification(message) {
+        if ("Notification" in window && Notification.permission === "granted") {
+          new Notification("OrchMonitor", { body: message, icon: "🌸" });
+        }
+        notifications.push({
+          id: Date.now(),
+          message,
+          time: new Date(),
+          type: "notification",
+        });
+        renderNotifications();
+      }
+
+      function addAlert(message, type) {
+        const exists = alerts.some((alert) => alert.message === message);
+        if (!exists) {
+          alerts.push({ id: Date.now(), message, type, time: new Date() });
+          renderNotifications();
+        }
+      }
+
+      function requestNotificationPermission() {
+        if ("Notification" in window && Notification.permission === "default") {
+          Notification.requestPermission();
+        }
+      }
+
+      function renderNotifications() {
+        const container = document.getElementById("notificationList");
+        const allItems = [...alerts, ...notifications].sort(
+          (a, b) => b.time - a.time
         );
 
-        if (imageFiles.length === 0) {
-          alert("No se encontraron imágenes válidas");
+        if (allItems.length === 0) {
+          container.innerHTML = `
+                    <div class="text-center py-8 text-gray-400">
+                        <div class="text-5xl mb-2">🔔</div>
+                        <p>No hay notificaciones</p>
+                    </div>
+                `;
           return;
         }
 
-        imageCountSpan.textContent = imageFiles.length;
-        pageCountSpan.textContent = Math.ceil(imageFiles.length / 6);
+        container.innerHTML = "";
+        allItems.forEach((item) => {
+          const notifItem = document.createElement("div");
+          notifItem.className = "notification-item";
 
-        let currentPage = null;
-        let currentGrid = null;
-
-        imageFiles.forEach((file, index) => {
-          if (index % 6 === 0) {
-            currentPage = createPage(Math.floor(index / 6) + 1);
-            currentGrid = currentPage.querySelector(".photo-grid");
-            pagesContainer.appendChild(currentPage);
+          if (item.type === "warning") {
+            notifItem.innerHTML = `
+                        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded">
+                            <div class="flex items-start gap-2">
+                                <span class="text-yellow-600">⚠️</span>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium text-gray-800">${
+                                      item.message
+                                    }</p>
+                                    <p class="text-xs text-gray-500">${item.time.toLocaleTimeString(
+                                      "es-CL"
+                                    )}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+          } else {
+            notifItem.innerHTML = `
+                        <div class="bg-blue-50 border-l-4 border-blue-400 p-3 rounded">
+                            <div class="flex items-start gap-2">
+                                <span class="text-blue-600">✅</span>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium text-gray-800">${
+                                      item.message
+                                    }</p>
+                                    <p class="text-xs text-gray-500">${item.time.toLocaleTimeString(
+                                      "es-CL"
+                                    )}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
           }
-
-          const photoContainer = document.createElement("div");
-          photoContainer.className = "photo-container";
-          photoContainer.innerHTML = `
-                    <div class="photo-wrapper">
-                        <div class="loading">Cargando...</div>
-                    </div>
-                    <button class="reset-btn" title="Resetear posición">🔄</button>
-                `;
-
-          const wrapper = photoContainer.querySelector(".photo-wrapper");
-
-          const reader = new FileReader();
-          reader.onload = function (e) {
-            const img = document.createElement("img");
-            img.src = e.target.result;
-            img.alt = `Foto ${index + 1}`;
-
-            img.dataset.scale = "1";
-            img.dataset.translateX = "0";
-            img.dataset.translateY = "0";
-
-            img.onload = function () {
-              const ratio = this.naturalWidth / this.naturalHeight;
-
-              if (ratio > 1.1) {
-                this.classList.add("landscape");
-              } else if (ratio < 0.9) {
-                this.classList.add("portrait");
-              } else {
-                this.classList.add("square");
-              }
-            };
-
-            wrapper.innerHTML = "";
-            wrapper.appendChild(img);
-
-            setupImageControls(photoContainer, img);
-          };
-          reader.readAsDataURL(file);
-
-          currentGrid.appendChild(photoContainer);
-        });
-
-        const lastPagePhotos = imageFiles.length % 6;
-        if (lastPagePhotos > 0 && lastPagePhotos < 6) {
-          const emptySpaces = 6 - lastPagePhotos;
-          for (let i = 0; i < emptySpaces; i++) {
-            const emptyContainer = document.createElement("div");
-            emptyContainer.className = "photo-container";
-            emptyContainer.style.visibility = "hidden";
-            currentGrid.appendChild(emptyContainer);
-          }
-        }
-      }
-
-      function setupImageControls(container, img) {
-        const resetBtn = container.querySelector(".reset-btn");
-
-        container.addEventListener("wheel", function (e) {
-          e.preventDefault();
-
-          let currentScale = parseFloat(img.dataset.scale);
-          const delta = e.deltaY > 0 ? -0.1 : 0.1;
-          let newScale = currentScale + delta;
-
-          newScale = Math.max(0.5, Math.min(3, newScale));
-
-          img.dataset.scale = newScale;
-          updateImageTransform(img);
-        });
-
-        container.addEventListener("mousedown", function (e) {
-          if (e.target === resetBtn) return;
-
-          isDragging = true;
-          currentImage = img;
-          container.classList.add("active");
-
-          startX = e.clientX - parseFloat(img.dataset.translateX);
-          startY = e.clientY - parseFloat(img.dataset.translateY);
-
-          e.preventDefault();
-        });
-
-        resetBtn.addEventListener("click", function (e) {
-          e.stopPropagation();
-          img.dataset.scale = "1";
-          img.dataset.translateX = "0";
-          img.dataset.translateY = "0";
-          updateImageTransform(img);
+          container.appendChild(notifItem);
         });
       }
 
-      document.addEventListener("mousemove", function (e) {
-        if (!isDragging || !currentImage) return;
+      updateTime();
+      setInterval(updateTime, 1000);
 
-        const newX = e.clientX - startX;
-        const newY = e.clientY - startY;
+      renderSensorNodes();
+      setInterval(updateSensorData, 5000);
 
-        currentImage.dataset.translateX = newX;
-        currentImage.dataset.translateY = newY;
+      renderSchedules();
+      renderNotifications();
 
-        updateImageTransform(currentImage);
-      });
-
-      document.addEventListener("mouseup", function () {
-        if (isDragging) {
-          isDragging = false;
-          if (currentImage) {
-            currentImage.closest(".photo-container").classList.remove("active");
-            currentImage = null;
-          }
-        }
-      });
-
-      function updateImageTransform(img) {
-        const scale = parseFloat(img.dataset.scale);
-        const translateX = parseFloat(img.dataset.translateX);
-        const translateY = parseFloat(img.dataset.translateY);
-
-        img.style.transform = `translate(calc(-50% + ${translateX}px), calc(-50% + ${translateY}px)) scale(${scale})`;
-      }
-
-      function createPage(pageNumber) {
-        const page = document.createElement("div");
-        page.className = "page";
-        page.innerHTML = `
-                <div class="header">
-                </div>
-                <div class="photo-grid"></div>
-            `;
-        return page;
-      }
-
-      window.addEventListener("load", function () {
-        const examplePage = createPage(1);
-        const grid = examplePage.querySelector(".photo-grid");
-
-        for (let i = 1; i <= 6; i++) {
-          const container = document.createElement("div");
-          container.className = "photo-container";
-          container.innerHTML = `
-                    <div class="photo-wrapper">
-                        <img src="https://via.placeholder.com/700/FFB6C1/000000?text=Foto+${i}" alt="Foto ${i}" class="square">
-                    </div>
-                    <button class="reset-btn" title="Resetear posición">🔄</button>
-                `;
-
-          const img = container.querySelector("img");
-          img.dataset.scale = "1";
-          img.dataset.translateX = "0";
-          img.dataset.translateY = "0";
-
-          setupImageControls(container, img);
-          grid.appendChild(container);
-        }
-
-        pagesContainer.appendChild(examplePage);
-        imageCountSpan.textContent = "6 (ejemplo)";
-        pageCountSpan.textContent = "1";
-      });
+      checkSchedules();
+      setInterval(checkSchedules, 60000);
     </script>
   </body>
 </html>
